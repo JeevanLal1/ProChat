@@ -94,6 +94,7 @@ const Auth = () => {
     } catch (error) {
       console.log(error);
       const message =
+        error?.response?.data?.error ||
         error?.response?.data?.message ||
         error?.response?.data ||
         "Something went wrong. Please try again.";
@@ -134,6 +135,7 @@ const Auth = () => {
         toast.error("Email already registered. Please login.");
       } else {
         const message =
+          error?.response?.data?.error ||
           error?.response?.data?.message ||
           "Something went wrong. Please try again.";
         toast.error(message);
