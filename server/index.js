@@ -27,7 +27,20 @@ const databaseURL = process.env.MONGO_URI;
 
 app.use(
   cors({
-    origin: [process.env.ORIGIN],
+    origin: (origin, callback) => {
+      const cleanOrigin = origin ? origin.replace(/\/$/, "") : "";
+      const allowed = [
+        process.env.ORIGIN ? process.env.ORIGIN.replace(/\/$/, "") : "",
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:3000",
+      ];
+      if (allowed.includes(cleanOrigin) || !origin) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
