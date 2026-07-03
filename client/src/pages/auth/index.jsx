@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "@/store";
 import { MessageCircle, Shield, Users, Zap, Eye, EyeOff, Mail, Lock } from "lucide-react";
+import Cookies from "js-cookie";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -78,7 +79,11 @@ const Auth = () => {
         );
 
         const user = response.data?.user;
+        const token = response.data?.token;
         if (user?.id) {
+          if (token) {
+            Cookies.set("access-token", token, { expires: 3 });
+          }
           setUserInfo(user);
           if (user.profileSetup) navigate("/chat");
           else navigate("/profile");
@@ -113,6 +118,10 @@ const Auth = () => {
         );
 
         if (response.status === 201) {
+          const token = response.data?.token;
+          if (token) {
+            Cookies.set("access-token", token, { expires: 3 });
+          }
           setUserInfo(response.data.user);
           navigate("/profile");
 

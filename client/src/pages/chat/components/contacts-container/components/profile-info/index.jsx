@@ -12,6 +12,7 @@ import { FiEdit2 } from "react-icons/fi";
 import { IoPowerSharp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { getColor } from "@/lib/utils";
+import Cookies from "js-cookie";
 
 const ProfileInfo = () => {
   const { userInfo, setUserInfo } = useAppStore();
@@ -24,6 +25,7 @@ const ProfileInfo = () => {
         { withCredentials: true }
       );
       if (response.status === 200) {
+        Cookies.remove("access-token");
         navigate("/auth");
         setUserInfo(undefined);
       }

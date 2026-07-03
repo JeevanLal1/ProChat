@@ -24,9 +24,9 @@ export const signup = async (req, res, next) => {
       return res.status(400).json({ message: "Email already registered", code: 11000 });
     }
 
-    const user = await User.create({ email, password });
+    const token = createToken(email, user.id);
 
-    res.cookie("jwt", createToken(email, user.id), {
+    res.cookie("jwt", token, {
       maxAge,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
@@ -41,6 +41,7 @@ export const signup = async (req, res, next) => {
         image: user.image,
         profileSetup: user.profileSetup,
       },
+      token,
     });
   } catch (err) {
     if (err.code === 11000) {
@@ -65,7 +66,8 @@ export const login = async (req, res, next) => {
       if (!auth) {
         return res.status(400).send("Invalid Password");
       }
-      res.cookie("jwt", createToken(email, user.id), {
+      const token = createToken(email, user.id);
+      res.cookie("jwt", token, {
         maxAge,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
@@ -79,6 +81,7 @@ export const login = async (req, res, next) => {
           image: user.image,
           profileSetup: user.profileSetup,
         },
+        token,
       });
     } else {
       return res.status(400).send("Email and Password Required");
