@@ -44,12 +44,12 @@ const ContactsContainer = () => {
   }, [setChannels]);
 
   return (
-    <div className="relative md:w-[35vw] lg:w-[30vw] xl:w-[20vw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full">
-      <div className=" pt-3">
+    <div className="relative md:w-[35vw] lg:w-[30vw] xl:w-[20vw] bg-[#1b1c24] border-r border-[#2f303b] w-full flex flex-col h-full">
+      <div className="pt-3">
         <Logo />
       </div>
-      <div className="my-5">
-        <div className="flex items-center justify-between pr-10">
+      <div className="my-5 flex flex-col min-h-0 flex-1">
+        <div className="flex items-center justify-between pr-10 mb-2">
           <Title text="Direct Messages" />
           <NewDM />
         </div>
@@ -57,8 +57,8 @@ const ContactsContainer = () => {
           <ContactList contacts={directMessagesContacts} />
         </div>
       </div>
-      <div className="my-5">
-        <div className="flex items-center justify-between pr-10">
+      <div className="my-5 flex flex-col min-h-0 flex-1 pb-20">
+        <div className="flex items-center justify-between pr-10 mb-2">
           <Title text="Channels" />
           <CreateChannel />
         </div>
@@ -75,7 +75,7 @@ export default ContactsContainer;
 
 const Title = ({ text }) => {
   return (
-    <h6 className="uppercase tracking-widest text-neutral-400 pl-10 font-light text-opacity-90 text-sm">
+    <h6 className="uppercase tracking-wider text-neutral-400 pl-10 font-semibold text-opacity-70 text-xs">
       {text}
     </h6>
   );

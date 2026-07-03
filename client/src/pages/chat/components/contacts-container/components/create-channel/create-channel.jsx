@@ -34,7 +34,15 @@ const CreateChannel = () => {
       const response = await apiClient.get(GET_ALL_CONTACTS, {
         withCredentials: true,
       });
-      setAllContacts(response.data.contacts);
+      if (response.data.contacts) {
+        const uniqueContacts = response.data.contacts.filter(
+          (contact, index, self) =>
+            self.findIndex(
+              (c) => c.value === contact.value || c.label === contact.label
+            ) === index
+        );
+        setAllContacts(uniqueContacts);
+      }
     };
     getData();
   }, []);
@@ -76,39 +84,37 @@ const CreateChannel = () => {
         <DialogDescription className="hidden">
           Please insert details
         </DialogDescription>
-        <DialogContent className="bg-[#5a5a6b38] border-none text-white w-[400px] h-max flex flex-col">
+        <DialogContent className="bg-[#181920] border border-white/10 text-white w-[400px] h-max flex flex-col rounded-3xl shadow-2xl p-6 gap-5">
           <DialogHeader>
-            <DialogTitle>Create a new Channel</DialogTitle>
+            <DialogTitle className="text-xl font-bold tracking-tight text-white/90">Create Channel</DialogTitle>
           </DialogHeader>
           <div>
-          <Input
-          placeholder="Channel Name"
-          className="rounded-lg py-6 px-4 bg-[#1b1d1fe5] text-white border-none
-                    focus:outline focus:outline-2 focus:outline-white"
-          value={channelName}
-          onChange={(e) => setChannelName(e.target.value)}
-        />
-
-        </div>
+            <Input
+              placeholder="Channel Name"
+              className="rounded-xl h-11 px-4 bg-[#2c2e3b] border border-transparent focus-visible:ring-1 focus-visible:ring-blue-500 text-white transition-all"
+              value={channelName}
+              onChange={(e) => setChannelName(e.target.value)}
+            />
+          </div>
 
           <div>
             <MultipleSelector
-              className="rounded-lg bg-[#1b1d1fe5] border-none py-2 text-white"
+              className="rounded-xl bg-[#2c2e3b] border border-transparent text-white text-sm"
               defaultOptions={allContacts}
-              placeholder="Search Contacts"
+              placeholder="Search contacts to add..."
               value={selectedContacts}
               onChange={setSelectedContacts}
               emptyIndicator={
-                <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
+                <p className="text-center text-sm leading-8 text-neutral-400">
                   No results found.
                 </p>
               }
             />
           </div>
-          <div>
+          <div className="pt-2">
             <Button
               onClick={createChannel}
-              className=" w-full bg-blue-700 hover:bg-purple-900 transition-all duration-300"
+              className="w-full h-12 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center justify-center gap-2 transition-all duration-300 shadow-md shadow-blue-500/10 focus-visible:ring-2 focus-visible:ring-blue-600"
             >
               Create Channel
             </Button>

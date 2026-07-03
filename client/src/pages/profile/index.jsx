@@ -6,12 +6,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import apiClient from "@/lib/api-client";
 import {
   ADD_PROFILE_IMAGE_ROUTE,
-  HOST,
   REMOVE_PROFILE_IMAGE_ROUTE,
   UPDATE_PROFLE_ROUTE,
+  getAssetUrl,
 } from "@/lib/constants";
 import { useState, useRef, useEffect } from "react";
-import { FaPlus, FaTrash, FaCamera } from "react-icons/fa";
+import { FaTrash, FaCamera } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { IoArrowBack } from "react-icons/io5";
@@ -22,7 +22,6 @@ const Profile = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [image, setImage] = useState(null);
-  const [hovered, setHovered] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const [selectedColor, setSelectedColor] = useState(0);
@@ -34,7 +33,7 @@ const Profile = () => {
       setSelectedColor(userInfo.color);
     }
     if (userInfo.image) {
-      setImage(`${HOST}/${userInfo.image}`);
+      setImage(getAssetUrl(userInfo.image));
     }
   }, [userInfo]);
 
@@ -121,44 +120,41 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-[#112d5b] flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-2xl">
         
         {/* Header */}
-        <div className="flex items-center mb-8">
+        <div className="flex items-center mb-6 sm:mb-8">
           <Button
             variant="ghost"
             onClick={handleNavigate}
-            className="text-white/70 hover:text-white hover:bg-white/10 p-2"
+            className="text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none transition-all"
+            aria-label="Go back"
           >
             <IoArrowBack className="w-5 h-5" />
           </Button>
-          <h1 className="text-2xl font-semibold text-white ml-4">Profile Setup</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-white ml-4">Profile Setup</h1>
         </div>
 
         {/* Main Card */}
-        <Card className="bg-white/5 backdrop-blur-sm border-white/10">
-          <CardContent className="p-8">
+        <Card className="bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-2xl rounded-3xl">
+          <CardContent className="p-6 sm:p-8">
             
-            <div className="flex flex-col lg:flex-row gap-8 items-center">
+            <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
               
               {/* Profile Image Section */}
               <div className="flex flex-col items-center space-y-4">
-                <div
-                  className="relative"
-                  onMouseEnter={() => setHovered(true)}
-                  onMouseLeave={() => setHovered(false)}
-                >
-                  <Avatar className="h-32 w-32 border-2 border-white/20">
+                <div className="relative group">
+                  <Avatar className="h-32 w-32 border-2 border-white/20 shadow-xl transition-all duration-300">
                     {image ? (
                       <AvatarImage
                         src={image}
                         alt="profile"
-                        className="object-cover w-full h-full"
+                        className="object-cover w-full h-full rounded-full"
                       />
                     ) : (
                       <div
-                        className={`h-full w-full text-4xl bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center font-medium`}
+                        className={`h-full w-full text-4xl bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center font-bold`}
                       >
                         {firstName
                           ? firstName.split("").shift()
@@ -167,18 +163,25 @@ const Profile = () => {
                     )}
                   </Avatar>
                   
-                  {/* Hover overlay */}
-                  {hovered && (
-                    <div
-                      className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full cursor-pointer transition-all duration-200"
-                      onClick={image ? handleDeleteImage : handleFileInputClick}
+                  {/* Hover overlay - Click always triggers file input upload */}
+                  <div
+                    className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    onClick={handleFileInputClick}
+                  >
+                    <FaCamera className="text-white text-2xl" />
+                  </div>
+
+                  {/* Absolute Delete Button - Rendered outside avatar, only if image exists */}
+                  {image && (
+                    <button
+                      type="button"
+                      onClick={handleDeleteImage}
+                      className="absolute -bottom-1 -right-1 p-2.5 bg-red-600 hover:bg-red-700 text-white rounded-full transition-all border-2 border-slate-950 hover:scale-110 active:scale-95 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 z-10"
+                      title="Delete photo"
+                      aria-label="Delete profile photo"
                     >
-                      {image ? (
-                        <FaTrash className="text-white text-xl" />
-                      ) : (
-                        <FaCamera className="text-white text-xl" />
-                      )}
-                    </div>
+                      <FaTrash className="text-xs" />
+                    </button>
                   )}
                 </div>
                 
@@ -197,58 +200,60 @@ const Profile = () => {
                 
                 {/* Email */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">
                     Email
                   </label>
                   <Input
                     type="email"
                     value={userInfo.email}
                     disabled
-                    className="bg-white/5 border-white/20 text-white"
+                    className="bg-white/5 border border-white/10 text-neutral-400 rounded-xl h-11 px-4 disabled:opacity-50 disabled:cursor-not-allowed select-none"
                   />
                 </div>
 
                 {/* Name fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">
                       First Name
                     </label>
                     <Input
                       placeholder="First Name"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="bg-white/5 border-white/20 text-white placeholder-gray-400"
+                      className="bg-white/5 border border-white/10 text-white placeholder-gray-500 rounded-xl h-11 px-4 focus-visible:ring-1 focus-visible:ring-blue-500 transition-all focus:border-blue-500/50"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">
                       Last Name
                     </label>
                     <Input
                       placeholder="Last Name"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      className="bg-white/5 border-white/20 text-white placeholder-gray-400"
+                      className="bg-white/5 border border-white/10 text-white placeholder-gray-500 rounded-xl h-11 px-4 focus-visible:ring-1 focus-visible:ring-blue-500 transition-all focus:border-blue-500/50"
                     />
                   </div>
                 </div>
 
                 {/* Color selection */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-3">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-3">
                     Theme Color
                   </label>
                   <div className="flex gap-3 flex-wrap">
                     {colors.map((color, index) => (
-                      <div
+                      <button
                         key={index}
-                        className={`${color} h-8 w-8 rounded-full cursor-pointer transition-all duration-200 ${
+                        type="button"
+                        className={`${color} h-8 w-8 rounded-full cursor-pointer transition-all duration-200 focus-visible:outline-none ${
                           selectedColor === index
-                            ? "ring-2 ring-white ring-offset-2 ring-offset-gray-800"
-                            : "hover:scale-110"
+                            ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-900 scale-105"
+                            : "hover:scale-110 focus-visible:ring-2 focus-visible:ring-blue-500"
                         }`}
                         onClick={() => setSelectedColor(index)}
+                        aria-label={`Select theme color ${index + 1}`}
                       />
                     ))}
                   </div>
@@ -260,7 +265,7 @@ const Profile = () => {
             <div className="mt-8 pt-6 border-t border-white/10">
               <Button
                 onClick={saveChanges}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 transition-colors"
+                className="w-full h-12 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-all duration-300 shadow-md shadow-blue-500/10 focus-visible:ring-2 focus-visible:ring-blue-600"
               >
                 Save Changes
               </Button>

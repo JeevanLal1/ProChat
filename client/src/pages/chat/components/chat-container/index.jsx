@@ -43,7 +43,7 @@ const ChatContainer = () => {
 
       setSocketTypingUsers((prev) => {
         if (prev.find((u) => u.userId === userId)) return prev;
-        return [...prev, { userId, firstName: firstName ?? "Someone" }];
+        return [...prev, { userId, firstName: firstName || "Someone" }];
       });
     };
 

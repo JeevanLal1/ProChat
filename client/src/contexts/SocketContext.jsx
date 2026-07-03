@@ -1,7 +1,7 @@
 // src/contexts/SocketContext.jsx
 import { SOCKET_HOST } from "@/lib/constants";
 import { useAppStore } from "@/store";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
 const SocketContext = createContext(null);
@@ -22,7 +22,7 @@ export const SocketProvider = ({ children }) => {
     setSocket(s);
 
     s.on("connect", () => {
-      console.log("Connected to socket server", s.id);
+      // console.log("Connected to socket server", s.id);
     });
 
     // message handlers (unchanged)
@@ -66,34 +66,41 @@ export const SocketProvider = ({ children }) => {
       addChannel(channel);
     };
 
+    const handleChannelDeleted = ({ channelId }) => {
+      const { removeChannel } = useAppStore.getState();
+      removeChannel(channelId);
+    };
+
     s.on("receiveMessage", handleReceiveMessage);
-    s.on("recieve-channel-message", handleReceiveChannelMessage);
+    s.on("receive-channel-message", handleReceiveChannelMessage);
     s.on("new-channel-added", addNewChannel);
+    s.on("channel-deleted", handleChannelDeleted);
 
     // ---- PRESENCE HANDLERS ----
     const { setOnlineUsers, addOnlineUser, removeOnlineUser } = useAppStore.getState();
 
     s.on("onlineUsersList", (users) => {
       // users: array of userIds (strings)
-      console.log("onlineUsersList received:", users);
+      // console.log("onlineUsersList received:", users);
       setOnlineUsers(users);
     });
 
     s.on("userOnline", ({ userId }) => {
-      console.log("userOnline:", userId);
+      // console.log("userOnline:", userId);
       addOnlineUser(userId);
     });
 
     s.on("userOffline", ({ userId }) => {
-      console.log("userOffline:", userId);
+      // console.log("userOffline:", userId);
       removeOnlineUser(userId);
     });
 
     // cleanup
     return () => {
       s.off("receiveMessage", handleReceiveMessage);
-      s.off("recieve-channel-message", handleReceiveChannelMessage);
+      s.off("receive-channel-message", handleReceiveChannelMessage);
       s.off("new-channel-added", addNewChannel);
+      s.off("channel-deleted", handleChannelDeleted);
 
       s.off("onlineUsersList");
       s.off("userOnline");

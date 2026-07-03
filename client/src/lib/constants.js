@@ -1,6 +1,14 @@
 export const HOST = import.meta.env.VITE_SERVER_URL;
 export const SOCKET_HOST = import.meta.env.VITE_SERVER_URL;
 
+export const getAssetUrl = (path) => {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+  return `${HOST}/${path}`;
+};
+
 export const AUTH_ROUTES = "api/auth";
 export const LOGIN_ROUTE = `${AUTH_ROUTES}/login`;
 export const SIGNUP_ROUTE = `${AUTH_ROUTES}/signup`;
@@ -18,6 +26,7 @@ export const CHANNEL_ROUTES = "/api/channel";
 export const CREATE_CHANNEL = `${CHANNEL_ROUTES}/create-channel`;
 export const GET_USER_CHANNELS = `${CHANNEL_ROUTES}/get-user-channels`;
 export const GET_CHANNEL_MESSAGES = `${CHANNEL_ROUTES}/get-channel-messages`;
+export const DELETE_CHANNEL = `${CHANNEL_ROUTES}/delete-channel`;
 
 export const CONTACTS_ROTUES = "/api/contacts";
 export const SEARCH_CONTACTS_ROUTES = `${CONTACTS_ROTUES}/search`;

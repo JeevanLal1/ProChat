@@ -193,67 +193,70 @@ const MessageBar = () => {
   };
 
   return (
-  <div className="fixed bottom-4 translate-x-1 mr-2 z-50 flex items-center gap-2 bg-transparent w-full px-2">
-    <div className="flex items-center gap-2 px-4 rounded-md bg-[#2d2e30]/80 backdrop-blur-md 
-                    w-[90vw] sm:w-[70vw] md:w-[60vw] lg:w-[75vw] h-14">
-      <input
-        type="text"
-        className="flex-1 text-base sm:text-lg bg-transparent text-white placeholder-gray-400 outline-none"
-        placeholder="Enter message"
-        value={message}
-        onChange={handleMessageChange}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") handleSendMessage();
-        }}
-      />
+    <div className="fixed bottom-4 translate-x-1 mr-2 z-50 flex items-center gap-2 bg-transparent w-full px-2">
+      <div className="flex items-center gap-3 px-4 rounded-2xl bg-[#2d2e30]/90 border border-white/5 shadow-xl 
+                      w-[90vw] sm:w-[70vw] md:w-[60vw] lg:w-[75vw] h-14 transition-all duration-300 focus-within:border-blue-500/50 focus-within:ring-1 focus-within:ring-blue-500/25">
+        <input
+          type="text"
+          className="flex-1 text-sm sm:text-base bg-transparent text-white placeholder-gray-400 outline-none"
+          placeholder="Enter message"
+          value={message}
+          onChange={handleMessageChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSendMessage();
+          }}
+        />
 
-      {/* Attachment Button */}
-      <button
-        className="text-neutral-300 hover:text-white"
-        onClick={handleAttachmentClick}
-      >
-        <GrAttachment className="text-lg sm:text-xl" />
-      </button>
-      <input
-        type="file"
-        className="hidden"
-        ref={fileInputRef}
-        onChange={handleAttachmentChange}
-      />
-
-        
-      <div className="relative">
+        {/* Attachment Button */}
         <button
-          className="text-neutral-300 hover:text-white"
-          onClick={() => setEmojiPickerOpen((s) => !s)}
+          className="p-2 rounded-xl text-neutral-400 hover:text-neutral-200 hover:bg-white/5 transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500"
+          onClick={handleAttachmentClick}
+          aria-label="Attach file"
         >
-          <RiEmojiStickerLine className="text-lg sm:text-xl" />
+          <GrAttachment className="text-base sm:text-lg" />
         </button>
-        {emojiPickerOpen && (
-          <div
-            className="absolute bottom-12 right-0 z-50"
-            ref={emojiRef}
-          >
-            <EmojiPicker
-              theme="dark"
-              open={emojiPickerOpen}
-              onEmojiClick={handleAddEmoji}
-              autoFocusSearch={false}
-            />
-          </div>
-        )}
-      </div>
-    </div>
+        <input
+          type="file"
+          className="hidden"
+          ref={fileInputRef}
+          onChange={handleAttachmentChange}
+        />
 
-    {/* Send Button */}
-    <button
-      className="bg-[#3661c6e2] rounded-md h-14 w-14 flex items-center justify-center hover:bg-[#2540acdf] focus:bg-[#1b54da] transition-all duration-300"
-      onClick={handleSendMessage}
-    >
-      <IoSend className="text-xl" />
-    </button>
-  </div>
-);
+        {/* Emoji Sticker Trigger */}
+        <div className="relative">
+          <button
+            className="p-2 rounded-xl text-neutral-400 hover:text-neutral-200 hover:bg-white/5 transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500"
+            onClick={() => setEmojiPickerOpen((s) => !s)}
+            aria-label="Add emoji"
+          >
+            <RiEmojiStickerLine className="text-base sm:text-lg" />
+          </button>
+          {emojiPickerOpen && (
+            <div
+              className="absolute bottom-14 right-0 z-50 shadow-2xl border border-white/10 rounded-2xl overflow-hidden"
+              ref={emojiRef}
+            >
+              <EmojiPicker
+                theme="dark"
+                open={emojiPickerOpen}
+                onEmojiClick={handleAddEmoji}
+                autoFocusSearch={false}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Send Button */}
+      <button
+        className="bg-blue-600 rounded-2xl h-14 w-14 flex items-center justify-center hover:bg-blue-700 active:scale-95 text-white shadow-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        onClick={handleSendMessage}
+        aria-label="Send message"
+      >
+        <IoSend className="text-lg" />
+      </button>
+    </div>
+  );
 
 };
 

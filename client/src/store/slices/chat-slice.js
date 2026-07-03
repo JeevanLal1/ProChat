@@ -125,4 +125,22 @@ export const createChatSlice = (set, get) => ({
       channels.unshift(data);
     }
   },
+
+  removeChannel: (channelId) => {
+    const channels = get().channels;
+    const selectedChatData = get().selectedChatData;
+    const selectedChatType = get().selectedChatType;
+
+    set({
+      channels: channels.filter((channel) => channel._id !== channelId),
+    });
+
+    if (selectedChatType === "channel" && selectedChatData?._id === channelId) {
+      set({
+        selectedChatData: undefined,
+        selectedChatType: undefined,
+        selectedChatMessages: [],
+      });
+    }
+  },
 });

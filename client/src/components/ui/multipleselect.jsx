@@ -131,6 +131,10 @@ const MultipleSelector = React.forwardRef(
     }, [arrayDefaultOptions, arrayOptions, groupBy, onSearch, options]);
 
     useEffect(() => {
+      setOptions(transToGroupOption(arrayDefaultOptions || [], groupBy));
+    }, [arrayDefaultOptions, groupBy]);
+
+    useEffect(() => {
       const doSearch = async () => {
         setIsLoading(true);
         const res = await onSearch?.(debouncedSearchTerm);
@@ -356,7 +360,7 @@ const MultipleSelector = React.forwardRef(
         <div className="relative">
           {open && (
             <CommandList
-              className="absolute top-1 z-10 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in"
+              className="absolute top-1 z-10 w-full rounded-2xl border border-white/10 bg-[#1c1d24] text-white shadow-2xl outline-none animate-in max-h-[220px] p-1.5"
               onMouseLeave={() => {
                 mouseOn.current = false;
               }}
@@ -387,7 +391,7 @@ const MultipleSelector = React.forwardRef(
                           return (
                             <CommandItem
                               key={option.value}
-                              value={option.value}
+                              value={option.label}
                               disabled={option.disable}
                               onMouseDown={(e) => {
                                 e.preventDefault();
@@ -404,7 +408,7 @@ const MultipleSelector = React.forwardRef(
                                 onChange?.(newOptions);
                               }}
                               className={cn(
-                                "cursor-pointer",
+                                "cursor-pointer rounded-xl px-3.5 py-2 text-white hover:bg-white/5 aria-[selected='true']:bg-white/10 aria-[selected='true']:text-white transition-all duration-150 my-0.5",
                                 option.disable &&
                                   "cursor-default text-muted-foreground"
                               )}

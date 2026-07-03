@@ -28,15 +28,27 @@ const Chat = () => {
   return (
     <div className="flex h-[100vh] text-white overflow-hidden">
       {isUploading && (
-        <div className="h-[100vh] w-[100vw] fixed top-0 z-10 left-0 bg-black/80 flex items-center justify-center flex-col gap-5">
-          <h5 className="text-5xl animate-pulse">Uploading File</h5>
-          {fileUploadProgress}%
+        <div className="h-[100vh] w-[100vw] fixed top-0 z-[100] left-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center flex-col gap-4 select-none animate-fade-in">
+          <h5 className="text-sm font-semibold tracking-widest text-neutral-400 uppercase">Uploading Attachment</h5>
+          <div className="w-64 h-1.5 bg-white/10 rounded-full overflow-hidden border border-white/5 relative">
+            <div 
+              className="h-full bg-blue-500 rounded-full transition-all duration-300 ease-out"
+              style={{ width: `${fileUploadProgress}%` }}
+            />
+          </div>
+          <span className="text-xs font-bold text-blue-400">{fileUploadProgress}%</span>
         </div>
       )}
       {isDownloading && (
-        <div className="h-[100vh] w-[100vw] fixed top-0 z-10 left-0 bg-black/80 flex items-center justify-center flex-col gap-5">
-          <h5 className="text-5xl animate-pulse">Downloading File</h5>
-          {downloadProgress}%
+        <div className="h-[100vh] w-[100vw] fixed top-0 z-[100] left-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center flex-col gap-4 select-none animate-fade-in">
+          <h5 className="text-sm font-semibold tracking-widest text-neutral-400 uppercase">Downloading Attachment</h5>
+          <div className="w-64 h-1.5 bg-white/10 rounded-full overflow-hidden border border-white/5 relative">
+            <div 
+              className="h-full bg-blue-500 rounded-full transition-all duration-300 ease-out"
+              style={{ width: `${downloadProgress}%` }}
+            />
+          </div>
+          <span className="text-xs font-bold text-blue-400">{downloadProgress}%</span>
         </div>
       )}
 

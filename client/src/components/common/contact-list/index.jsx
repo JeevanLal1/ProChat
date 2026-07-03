@@ -1,4 +1,4 @@
-import { HOST } from "@/lib/constants";
+import { getAssetUrl } from "@/lib/constants";
 import { getColor } from "@/lib/utils";
 import { useAppStore } from "@/store";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
@@ -9,6 +9,7 @@ const ContactList = ({ contacts, isChannel = false }) => {
     setSelectedChatType,
     setSelectedChatData,
     setSelectedChatMessages,
+    onlineUsers = [],
   } = useAppStore();
 
   const handleClick = (contact) => {
@@ -21,54 +22,67 @@ const ContactList = ({ contacts, isChannel = false }) => {
   };
 
   return (
-    <div className="mt-5">
-      {contacts.map((contact) => (
-        <div
-          key={contact._id}
-          className={`pl-10 py-2  transition-all duration-300 cursor-pointer ${
-            selectedChatData && selectedChatData._id === contact._id
-              ? "bg-[#14335fdd] hover:bg-[#388ecbbb]"
-              : "hover:bg-[#f1f1f111] "
-          }`}
-          onClick={() => handleClick(contact)}
-        >
-          <div className="flex gap-5 items-center justify-start text-neutral-300">
-            {!isChannel && (
-              <Avatar className="h-10 w-10 ">
-                {contact.image && (
-                  <AvatarImage
-                    src={`${HOST}/${contact.image}`}
-                    alt="profile"
-                    className="rounded-full bg-cover h-full w-full"
-                  />
-                )}
+    <div className="mt-2">
+      {contacts.map((contact) => {
+        const isOnline = !isChannel && onlineUsers.includes(contact._id);
+        return (
+          <div
+            key={contact._id}
+            className={`pl-10 py-2 transition-all duration-200 cursor-pointer border-l-2 ${
+              selectedChatData && selectedChatData._id === contact._id
+                ? "bg-blue-600/10 border-blue-500 text-white font-medium"
+                : "border-transparent hover:bg-white/5 text-neutral-400 hover:text-neutral-200"
+            }`}
+            onClick={() => handleClick(contact)}
+          >
+            <div className="flex gap-4 items-center justify-start">
+              {!isChannel && (
+                <div className="relative w-9 h-9">
+                  <Avatar className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center bg-transparent">
+                    {contact.image && (
+                      <AvatarImage
+                        src={getAssetUrl(contact.image)}
+                        alt="profile"
+                        className="rounded-full bg-cover h-full w-full animate-fade-in"
+                      />
+                    )}
 
-                <AvatarFallback
-                  className={`uppercase ${
-                    selectedChatData && selectedChatData._id === contact._id
-                      ? "bg-[#ffffff22] border border-white/50"
-                      : getColor(contact.color)
-                  } h-10 w-10 flex items-center justify-center rounded-full`}
-                >
-                  {contact.firstName.split("").shift()}
-                </AvatarFallback>
-              </Avatar>
-            )}
-            {isChannel && (
-              <div
-                className={` bg-[#ffffff22] h-10 w-10 flex items-center justify-center rounded-full`}
-              >
-                #
-              </div>
-            )}
-            {isChannel ? (
-              <span>{contact.name}</span>
-            ) : (
-              <span>{`${contact.firstName} ${contact.lastName}`}</span>
-            )}
+                    <AvatarFallback
+                      className={`uppercase ${
+                        selectedChatData && selectedChatData._id === contact._id
+                          ? "bg-[#ffffff22] border border-white/50"
+                          : getColor(contact.color)
+                      } h-9 w-9 flex items-center justify-center rounded-full text-xs font-semibold`}
+                    >
+                      {contact.firstName
+                        ? contact.firstName.split("").shift()
+                        : contact.email?.split("").shift()}
+                    </AvatarFallback>
+                  </Avatar>
+                  {isOnline && (
+                    <span 
+                      className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-[#1b1c24] rounded-full"
+                      title="Online"
+                    />
+                  )}
+                </div>
+              )}
+              {isChannel && (
+                <span className="text-lg text-neutral-500 font-light select-none w-5 text-center">#</span>
+              )}
+              <span className="truncate text-sm">
+                {isChannel ? (
+                  contact.name
+                ) : contact.firstName ? (
+                  `${contact.firstName} ${contact.lastName ?? ""}`
+                ) : (
+                  contact.email
+                )}
+              </span>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
