@@ -1,5 +1,5 @@
 import Message from "../model/MessagesModel.js";
-import { mkdirSync, renameSync } from "fs";
+import { uploadToCloudinary } from "../lib/cloudinary.js";
 
 export const getMessages = async (req, res, next) => {
   try {
@@ -26,21 +26,20 @@ export const getMessages = async (req, res, next) => {
 export const uploadFile = async (request, response, next) => {
   try {
     if (request.file) {
-      console.log("in try if");
-      const date = Date.now();
-      let fileDir = `uploads/files/${date}`;
-      let fileName = `${fileDir}/${request.file.originalname}`;
-
-      // Create directory if it doesn't exist
-      mkdirSync(fileDir, { recursive: true });
-
-      renameSync(request.file.path, fileName);
-      return response.status(200).json({ filePath: fileName });
+      // Upload file buffer to Cloudinary folder 'prochat_attachments'
+      const uploadResult = await uploadToCloudinary(
+        request.file.buffer,
+        "prochat_attachments",
+        "auto"
+      );
+      
+      // Return the secure Cloudinary URL inside the filePath response parameter
+      return response.status(200).json({ filePath: uploadResult.secure_url });
     } else {
       return response.status(404).send("File is required.");
     }
   } catch (error) {
-    console.log({ error });
+    console.error("Error in uploadFile:", error);
     return response.status(500).send("Internal Server Error.");
   }
 };

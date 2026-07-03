@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../model/UserModel.js";
 import { compare } from "bcrypt";
-import { renameSync, unlinkSync } from "fs";
+import { uploadToCloudinary, deleteFromCloudinary, getPublicIdFromUrl } from "../lib/cloudinary.js";
 
 const maxAge = 3 * 24 * 60 * 60 * 1000;
 
@@ -167,12 +167,27 @@ export const updateProfile = async (request, response, next) => {
 export const addProfileImage = async (request, response, next) => {
   try {
     if (request.file) {
-      const date = Date.now();
-      let fileName = "uploads/profiles/" + date + request.file.originalname;
-      renameSync(request.file.path, fileName);
+      // 1. If user already has an image, delete it from Cloudinary first
+      const user = await User.findById(request.userId);
+      if (user && user.image) {
+        const oldPublicId = getPublicIdFromUrl(user.image);
+        if (oldPublicId) {
+          try {
+            await deleteFromCloudinary(oldPublicId, "image");
+          } catch (deleteError) {
+            console.error("Failed to delete old profile image from Cloudinary:", deleteError);
+          }
+        }
+      }
+
+      // 2. Upload the new file buffer to Cloudinary
+      const uploadResult = await uploadToCloudinary(request.file.buffer, "prochat_profiles", "image");
+      const secureUrl = uploadResult.secure_url;
+
+      // 3. Update the user record
       const updatedUser = await User.findByIdAndUpdate(
         request.userId,
-        { image: fileName },
+        { image: secureUrl },
         {
           new: true,
           runValidators: true,
@@ -183,7 +198,7 @@ export const addProfileImage = async (request, response, next) => {
       return response.status(404).send("File is required.");
     }
   } catch (error) {
-    console.log({ error });
+    console.error("Error in addProfileImage:", error);
     return response.status(500).send("Internal Server Error.");
   }
 };
@@ -203,7 +218,14 @@ export const removeProfileImage = async (request, response, next) => {
     }
 
     if (user.image) {
-      unlinkSync(user.image);
+      const publicId = getPublicIdFromUrl(user.image);
+      if (publicId) {
+        try {
+          await deleteFromCloudinary(publicId, "image");
+        } catch (deleteError) {
+          console.error("Failed to delete profile image from Cloudinary:", deleteError);
+        }
+      }
     }
 
     user.image = null;
@@ -213,7 +235,7 @@ export const removeProfileImage = async (request, response, next) => {
       .status(200)
       .json({ message: "Profile image removed successfully." });
   } catch (error) {
-    console.log({ error });
+    console.error("Error in removeProfileImage:", error);
     return response.status(500).send("Internal Server Error.");
   }
 };

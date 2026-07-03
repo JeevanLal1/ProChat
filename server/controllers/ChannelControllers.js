@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Channel from "../model/ChannelModel.js";
 import User from "../model/UserModel.js";
+import Message from "../model/MessagesModel.js";
 
 export const createChannel = async (request, response, next) => {
   try {
@@ -67,6 +68,37 @@ export const getChannelMessages = async (req, res, next) => {
     return res.status(200).json({ messages });
   } catch (error) {
     console.error("Error getting channel messages:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const deleteChannel = async (req, res) => {
+  try {
+    const { channelId } = req.params;
+    const userId = req.userId;
+
+    const channel = await Channel.findById(channelId);
+
+    if (!channel) {
+      return res.status(404).json({ message: "Channel not found." });
+    }
+
+    // Verify requesting user is admin
+    if (channel.admin.toString() !== userId.toString()) {
+      return res.status(403).json({ message: "Only the channel admin can delete this channel." });
+    }
+
+    // 1. Delete all channel messages
+    if (channel.messages && channel.messages.length > 0) {
+      await Message.deleteMany({ _id: { $in: channel.messages } });
+    }
+
+    // 2. Delete channel
+    await Channel.findByIdAndDelete(channelId);
+
+    return res.status(200).json({ message: "Channel deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting channel:", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };

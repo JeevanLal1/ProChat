@@ -3,6 +3,7 @@ import {
   createChannel,
   getChannelMessages,
   getUserChannels,
+  deleteChannel,
 } from "../controllers/ChannelControllers.js";
 import { verifyToken } from "../middlewares/AuthMiddleware.js";
 
@@ -15,5 +16,6 @@ channelRoutes.get(
   verifyToken,
   getChannelMessages
 );
+channelRoutes.delete("/delete-channel/:channelId", verifyToken, deleteChannel);
 
 export default channelRoutes;

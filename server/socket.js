@@ -11,7 +11,6 @@ const setupSocket = (server) => {
     },
   });
 
-  // Map userId -> Set(socketId)
   const userSockets = new Map();
   const socketToUser = new Map();
 
@@ -54,13 +53,7 @@ const setupSocket = (server) => {
     );
   };
 
-  /**
-   * Channel message: write to DB then broadcast to the channel room.
-   * We emit the misspelled event "recieve-channel-message" because your client
-   * currently listens to that event. This keeps the client unchanged.
-   *
-   * We also ensure the sending socket is joined to the room if we receive its socketId.
-   */
+  //Channel message: write to DB then broadcast to the channel room 
   const sendChannelMessage = async (message, senderSocketId = null) => {
     try {
       const { channelId, sender, content, messageType, fileUrl } = message;
@@ -82,10 +75,9 @@ const setupSocket = (server) => {
         $push: { messages: createdMessage._id },
       });
 
-      // final payload to send to clients
+     
       const finalData = { ...messageData._doc, channelId };
 
-      // make sure the sending socket is in the room 
       if (senderSocketId) {
         const senderSocket = io.sockets.sockets.get?.(senderSocketId) ?? io.sockets.sockets[senderSocketId];
         try {
@@ -96,8 +88,6 @@ const setupSocket = (server) => {
         }
       }
 
-      // Broadcast to everyone in the channel room.
-      io.to(channelId).emit("recieve-channel-message", finalData);
       io.to(channelId).emit("receive-channel-message", finalData);
     } catch (err) {
       console.error("sendChannelMessage error:", err);
@@ -135,9 +125,9 @@ const setupSocket = (server) => {
     const userId = socket.handshake.query.userId;
     if (userId) {
       addUserSocket(userId, socket.id);
-      console.log(`User connected: ${userId} with socket ID: ${socket.id}`);
+      // console.log(`User connected: ${userId} with socket ID: ${socket.id}`);
     } else {
-      console.log("User ID not provided during connection.");
+      // console.log("User ID not provided during connection.");
     }
 
     socket.on("add-channel-notify", addChannelNotify);
@@ -215,9 +205,22 @@ const setupSocket = (server) => {
       }
     });
 
+    socket.on("delete-channel-notify", ({ channelId, members }) => {
+      if (members) {
+        members.forEach((mId) => {
+          getUserSocketIds(mId.toString()).forEach((sid) =>
+            io.to(sid).emit("channel-deleted", { channelId })
+          );
+        });
+      }
+      getUserSocketIds(userId).forEach((sid) =>
+        io.to(sid).emit("channel-deleted", { channelId })
+      );
+    });
+
     socket.on("disconnect", () => {
       removeUserSocket(socket.id);
-      console.log("Client disconnected", socket.id);
+      // console.log("Client disconnected", socket.id);
     });
   });
 };
