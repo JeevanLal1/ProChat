@@ -24,6 +24,8 @@ export const signup = async (req, res, next) => {
       return res.status(400).json({ message: "Email already registered", code: 11000 });
     }
 
+    const user = await User.create({ email, password });
+
     const token = createToken(email, user.id);
 
     res.cookie("jwt", token, {
