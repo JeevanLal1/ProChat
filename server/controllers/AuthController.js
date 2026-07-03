@@ -49,7 +49,7 @@ export const signup = async (req, res, next) => {
     }
 
     console.log("Signup Error:", err);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ message: "Internal Server Error", error: err.message });
   }
 };
 
@@ -87,7 +87,8 @@ export const login = async (req, res, next) => {
       return res.status(400).send("Email and Password Required");
     }
   } catch (err) {
-    return res.status(500).send("Internal Server Error");
+    console.log("Login Error:", err);
+    return res.status(500).json({ message: "Internal Server Error", error: err.message });
   }
 };
 
